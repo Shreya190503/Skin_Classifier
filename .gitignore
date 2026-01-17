@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.env
+*.pth
+*.h5
+models/
+data/
+.DS_Store
+.streamlit/
+
