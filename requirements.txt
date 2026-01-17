@@ -1,8 +1,17 @@
 streamlit
-torch
-torchvision
 numpy
-opencv-python
 pillow
 matplotlib
 scikit-learn
+
+# PyTorch
+torch
+torchvision
+timm
+
+# TensorFlow (for .h5 model)
+tensorflow==2.15.0
+
+# Grad-CAM utilities (if used later)
+opencv-python
+
