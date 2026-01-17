@@ -5,7 +5,20 @@ from PIL import Image
 IMG_SIZE = 224
 
 def load_tf_model(path):
-    return tf.keras.models.load_model(str(path))
+    import tensorflow as tf
+    return tf.keras.models.load_model(path)
+
+def predict_tf(model, image):
+    import tensorflow as tf
+    import numpy as np
+    from PIL import Image
+
+    image = image.resize((224, 224))
+    x = np.array(image) / 255.0
+    x = np.expand_dims(x, axis=0)
+
+    preds = model.predict(x, verbose=0)
+    return preds[0]
 
 
 def preprocess_tf(image: Image.Image):
