@@ -1,17 +1,10 @@
-# Core
 streamlit==1.31.0
 numpy==1.26.4
 pillow
 matplotlib
 scikit-learn
-
-# PyTorch (CPU)
 torch==2.1.2
 torchvision==0.16.2
 timm
-
-# TensorFlow CPU ONLY
 tensorflow-cpu==2.15.0
-
-# Optional (safe)
 opencv-python-headless
