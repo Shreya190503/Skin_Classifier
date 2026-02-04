@@ -1,10 +1,30 @@
+# Byte-compiled
 __pycache__/
 *.pyc
+*.py[cod]
+
+# Environment
 .env
-*.pth
-*.h5
+venv/
+env/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Jupyter
+.ipynb_checkpoints/
+
+# IDE
+.vscode/
+.idea/
+
+# Old paths (not used)
 models/
 data/
-.DS_Store
-.streamlit/
 
+# Logs
+*.log
+
+# NOTE: Models (.pth) and sample_data are INCLUDED for Streamlit Cloud
+# Use Git LFS if files are >100MB: git lfs track "*.pth"

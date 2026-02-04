@@ -1,45 +1,62 @@
 import torch
 import torch.nn as nn
-import segmentation_models_pytorch as smp
+from torchvision.models import efficientnet_b2
+
+# Resolution must match training
+RESOLUTION = 260
+DROPOUT = 0.3
 
 
-class SMPClassifier(nn.Module):
-    def __init__(self, encoder_name="efficientnet-b2", num_classes=8):
+class SimpleClassifier(nn.Module):
+    """
+    Simple classifier matching the training architecture.
+    Uses EfficientNet-B2 encoder with a custom classification head.
+    """
+
+    def __init__(self, encoder, num_classes, dropout=DROPOUT):
         super().__init__()
+        self.encoder = encoder
 
-        # Encoder (this matches encoder.* keys)
-        self.encoder = smp.encoders.get_encoder(
-            name=encoder_name,
-            in_channels=3,
-            depth=5,
-            weights=None,
-        )
+        # Compute output features from encoder
+        with torch.no_grad():
+            dummy = torch.zeros(1, 3, RESOLUTION, RESOLUTION)
+            out_features = self.encoder(dummy).shape[1]
 
-        # Classification head (this matches head.* keys)
-        self.pool = nn.AdaptiveAvgPool2d(1)
-
-        self.head = smp.base.ClassificationHead(
-            in_channels=self.encoder.out_channels[-1],
-            classes=num_classes,
-            pooling="avg",
-            dropout=0.2,
-            activation=None,
+        self.head = nn.Sequential(
+            nn.AdaptiveAvgPool2d(1),
+            nn.Flatten(),
+            nn.Dropout(dropout),
+            nn.Linear(out_features, num_classes)
         )
 
     def forward(self, x):
         features = self.encoder(x)
-        x = features[-1]
-        x = self.head(x)
-        return x
+        return self.head(features)
 
 
 def load_torch_model(path, num_classes, device):
-    model = SMPClassifier(
-        encoder_name="efficientnet-b2",
-        num_classes=num_classes
-    )
+    """
+    Load a trained PyTorch model.
 
-    state_dict = torch.load(path, map_location=device)
+    Args:
+        path: Path to the .pth state dict file
+        num_classes: Number of output classes
+        device: Device to load model on ('cuda' or 'cpu')
+
+    Returns:
+        Loaded model in eval mode
+    """
+    # Create backbone (EfficientNet-B2)
+    backbone = efficientnet_b2(weights=None)
+
+    # Extract encoder (features only, no classifier)
+    encoder = nn.Sequential(*backbone.features)
+
+    # Create the classifier
+    model = SimpleClassifier(encoder, num_classes, dropout=DROPOUT)
+
+    # Load weights
+    state_dict = torch.load(path, map_location=device, weights_only=True)
     model.load_state_dict(state_dict)
 
     model.to(device)
